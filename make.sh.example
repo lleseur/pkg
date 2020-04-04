@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# elevated() - Run "$@" with elevated privileges
+elevated()
+{
+	[ "$(id -u)" = "0" ] && "$@" && return 0
+	command -v sudo 1>/dev/null 2>/dev/null && echo "Requesting elevated privileges using sudo" && sudo "$@" && return 0
+	return 1
+}
+
+make()
+{
+	return 0
+}
+
+install()
+{
+	return 0
+}
+
+remove()
+{
+	return 0
+}
+
+for arg in "$@"; do
+	case "$arg" in
+	""|all|make)
+		make || exit $?
+		;;
+	remove)
+		remove || exit $?
+		;;
+	install)
+		install || exit $?
+		;;
+	*)
+		echo "Error: Invalid argument $arg" 1>&2
+		exit 1
+		;;
+	esac
+done
+exit 0
+
