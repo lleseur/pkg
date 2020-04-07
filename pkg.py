@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 # This script will manage packages installed from this repository
+# This script takes options folowed by a list of packages or sets
+# Packages are a string in the "category/package" format (e.g. app-editor/nano)
+# Sets starts with '@', they are a group of package, there is currently only the
+# @world set representing the list of installed packages
 
 import sys, os, argparse, pathlib, subprocess, re
 
@@ -55,7 +59,7 @@ def cd(pkg):
 """
 def build():
 	try:
-		subprocess.check_call(["./make.sh"])
+		subprocess.check_call(["../../make.sh"])
 	except FileNotFoundError:
 		return True
 	except (subprocess.CalledProcessError, PermissionError):
@@ -68,7 +72,7 @@ def build():
 """
 def install():
 	try:
-		subprocess.check_call(["./make.sh", "install"])
+		subprocess.check_call(["../../make.sh", "install"])
 	except FileNotFoundError:
 		return True
 	except (subprocess.CalledProcessError, PermissionError):
@@ -81,7 +85,7 @@ def install():
 """
 def remove():
 	try:
-		subprocess.check_call(["./make.sh", "remove"])
+		subprocess.check_call(["../../make.sh", "remove"])
 	except FileNotFoundError:
 		return True
 	except (subprocess.CalledProcessError, PermissionError):
@@ -240,6 +244,8 @@ if not(args.pretend):
 		else:
 			world[pkg] = commit
 		os.chdir(repo)
+		if not(writeWorld(world, "world.dat", args.debug)):
+			print(f"Error: Failed to update world file after installing {pkg}", file=sys.stderr)
 
 # Write world file
 if not(writeWorld(world, "world.dat", args.verbose)):
