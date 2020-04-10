@@ -33,7 +33,7 @@ build_default()
 	if [ -f "../../env.conf" ]; then
 		. "../../env.conf"
 		for vname in CC CXX CTARGET CFLAGS CXXFLAGS CPPFLAGS FCFLAGS FFLAGS LDFLAGS; do
-			export "${vname}"
+			export "${vname?}"
 		done
 	fi
 
@@ -87,7 +87,9 @@ if [ -f "./makerc" ]; then
 fi
 
 # Parse arguments
-[ $# -eq 0 ] && build || die "Build failed"
+if [ $# -eq 0 ]; then
+	build || die "Build failed"
+fi
 for arg in "$@"; do
 	case "$arg" in
 	""|all|make|build)
