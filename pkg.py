@@ -219,8 +219,8 @@ for pkg in pkgs:
 		s = "N"
 	print(f"{s}\t{pkg}")
 
-# Check for pretend flag
-if args.ask and not(args.pretend):
+# Check for ask flag
+if args.ask and not(args.pretend) and pkgs:
 	ask = input("\nConfirm [yes/no] ? ")
 	if ask.lower() not in ["y", "yes"]:
 		if ask.lower() not in ["n", "no"]:
