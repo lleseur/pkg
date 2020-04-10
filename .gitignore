@@ -1,4 +1,5 @@
 *.swp
 *~
 world.dat
+env.conf
 
