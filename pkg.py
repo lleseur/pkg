@@ -166,6 +166,10 @@ if args.debug:
 	print("World:")
 	for pkg in world: print(pkg, world[pkg])
 
+# If no packages given and not sync, exits
+if not(args.sync) and not(args.package):
+	parser.print_help()
+	sys.exit("No sync and no package given, nothing to do")
 
 # Sync
 if args.verbose:
@@ -180,6 +184,10 @@ date = subprocess.check_output(["git", "show", "-s", "--format=\"%ci\"", commit]
 if args.sync:
 	version = "Current repository version: " + commit + "\nCurrent repository date: " + date + "\n"
 	print(version)
+
+# If no packages, exits
+if not(args.package):
+	sys.exit()
 
 # Get set pkgs of package to handle, sets are packages starting with @, e.g. @world
 pkgs = set()
