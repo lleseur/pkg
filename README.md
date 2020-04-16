@@ -1,13 +1,13 @@
 # yoshi-utils - Personnal utilities repository
 
 This repository contain personnal packages and a small package manager.
-The package manager is pkg.py and is made to install/remove/update packages from this repository.
+The package manager is pkg and is made to install/remove/update packages from this repository.
 
 The purpose of this repository is to allow me to easilly synchronize packages between different machines.
 This also allow me to update a package from any machine using this repository.
 The majority of the packages here are simple scripts to make my life easier and are only relevant on my personnal systems.
 
-## pkg.py
+## pkg
 
 This small package manager can install, reinstall, update, uninstall packages on any supported systems.
 Supported system vary according to the purpose of the package
@@ -44,11 +44,11 @@ There currently is only one set which is "@world", it is a list of all the packa
 ### Examples
 
 To update all installed packages, run:
-`./pkg.py --ask --update @world`  
+`./pkg --ask --update @world`  
 To install (or reinstall) the package "sys-app/remount", run:
-`./pkg.py --ask sys-app/remount`  
+`./pkg --ask sys-app/remount`  
 To uninstall the package "sys-app/remount", run:
-`./pkg.py --ask --remove sys-app/remount`
+`./pkg --ask --remove sys-app/remount`
 
 ## make.sh
 
