@@ -59,7 +59,7 @@ def cd(pkg):
 """
 def build():
 	try:
-		subprocess.check_call(["../../make.sh"])
+		subprocess.check_call(["../../make"])
 	except FileNotFoundError:
 		return True
 	except (subprocess.CalledProcessError, PermissionError):
@@ -72,7 +72,7 @@ def build():
 """
 def install():
 	try:
-		subprocess.check_call(["../../make.sh", "install"])
+		subprocess.check_call(["../../make", "install"])
 	except FileNotFoundError:
 		return True
 	except (subprocess.CalledProcessError, PermissionError):
@@ -85,7 +85,7 @@ def install():
 """
 def remove():
 	try:
-		subprocess.check_call(["../../make.sh", "remove"])
+		subprocess.check_call(["../../make", "remove"])
 	except FileNotFoundError:
 		return True
 	except (subprocess.CalledProcessError, PermissionError):

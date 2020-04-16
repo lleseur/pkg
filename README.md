@@ -50,24 +50,24 @@ To install (or reinstall) the package "sys-app/remount", run:
 To uninstall the package "sys-app/remount", run:
 `./pkg --ask --remove sys-app/remount`
 
-## make.sh
+## make
 
 This script is a package installer placing itself between the package manager and the package installation process.
 The purpose of this script is to call the package installation process (e.g. Makefile, ./install.sh script).
 
 ### Syntaxe
 
-Its syntaxe is `make.sh [make|install|remove]`.
+Its syntaxe is `./make [make|install|remove]`.
  * `make`, `build`, `compile`, nothing: Builds the program
  * `install`: Installs the program on the system
  * `remove`: Removes the program from the system
 
 ### Package specific configuration
 
-make.sh have 3 functions: `build`, `install`, `remove` that are called according to the arguments received.
+./make have 3 functions: `build`, `install`, `remove` that are called according to the arguments received.
 By default, those 3 functions will call respectively `build_default`, `install_default`, `remove_default`.
 This behavior can be overriden by redefining the functions in a `makerc` file placed in the package's directory.
-Before calling any function, `makerc` is sourced by make.sh.
+Before calling any function, `makerc` is sourced by ./make.
 
 Default functions available:
  * `build_default` will source an `env.conf` file from the repository's root directory,
@@ -84,14 +84,14 @@ Default functions available:
 
 Here, we define `$ROOT` as the root folder of the repository,
 and `$PKG` as the folder containing the package.
-make.sh will use multiple files if they exists:
+./make will use multiple files if they exists:
  * `$ROOT/env.conf` is sourced by `build_default` to get some environment variables.
    It will then export those variables before trying to call make.
    The variables it exports are:
    `CC`, `CXX`, `CTARGET`, `CFLAGS`, `CXXFLAGS`, `CPPFLAGS`, `FCFLAGS`, `FFLAGS`, `LDFLAGS`.
    The function will also use the `MAKEOPTS` (but not export it) if defined,
    this variable will be used as an argument list to append to the `make` command (e.g. "-j4 -l4").
- * `$PKG/makerc` is sourced by make.sh before calling the `build`, `install`, or `remove` functions.
+ * `$PKG/makerc` is sourced by ./make before calling the `build`, `install`, or `remove` functions.
    This is where a package should redefine those functions.
    This is also where a package should define the variables it needs (e.g. ELEVATED_INSTALL, ELEVATED_REMOVE).
 
