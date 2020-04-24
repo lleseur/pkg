@@ -29,20 +29,12 @@ elevate()
 
 build_default()
 {
-	# Load environment variable from env.conf
-	if [ -f "../../env.conf" ]; then
-		. "../../env.conf"
-		for vname in CC CXX CTARGET CFLAGS CXXFLAGS CPPFLAGS FCFLAGS FFLAGS LDFLAGS; do
-			export "${vname?}"
-		done
-	fi
-
 	# Try default configure and build process
 	if [ -x ./configure ]; then
 		./configure || die "Configure failed"
 	fi
 	if [ -f Makefile ] || [ -f makefile ] || [ -f GNUmakefile ]; then
-		eval make MAKEOPTS="${MAKEOPTS}" || die "Make failed"
+		eval make "${MAKEOPTS:+MAKEOPTS=${MAKEOPTS}}" || die "Make failed"
 	fi
 
 	return 0
@@ -53,9 +45,9 @@ install_default()
 	# Try default install process
 	if [ -f Makefile ] || [ -f makefile ] || [ -f GNUmakefile ]; then
 		if [ -n "${ELEVATED_INSTALL}" ]; then
-			elevate make DESTDIR="${DESTDIR}" install || die "Make install failed"
+			elevate make "${DESTDIR:+DESTDIR=${DESTDIR}}" install || die "Make install failed"
 		else
-			make DESTDIR="${DESTDIR}" install || die "Make install failed"
+			make "${DESTDIR:+DESTDIR=${DESTDIR}}" install || die "Make install failed"
 		fi
 	fi
 
@@ -67,9 +59,9 @@ remove_default()
 	# Try defaut install process
 	if [ -f Makefile ] || [ -f makefile ] || [ -f GNUmakefile ]; then
 		if [ -n "${ELEVATED_REMOVE}" ]; then
-			elevate make DESTDIR="${DESTDIR}" uninstall || die "Make uninstall failed"
+			elevate make "${DESTDIR:+DESTDIR=${DESTDIR}}" uninstall || die "Make uninstall failed"
 		else
-			make DESTDIR="${DESTDIR}" uninstall || die "Make uninstall failed"
+			make "${DESTDIR:+DESTDIR=${DESTDIR}}" uninstall || die "Make uninstall failed"
 		fi
 	fi
 
@@ -80,6 +72,14 @@ remove_default()
 build() { build_default; }
 install() { install_default; }
 remove() { remove_default; }
+
+# Load environment variable from env.conf
+if [ -f "../../env.conf" ]; then
+	. "../../env.conf"
+	for vname in $(cut -d'=' -f1 "../../env.conf"); do
+		export "${vname}"
+	done
+fi
 
 # Read makerc
 if [ -f "./makerc" ]; then

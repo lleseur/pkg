@@ -1,0 +1,95 @@
+#!/bin/sh
+# Script to build initramfs for YOSHI-HP
+# This script expects to be run from a kernel source directory
+# Run it from /usr/src/linux for instance with ../initramfs
+#
+# Environment variables:
+#   LIBPATH       Override the position of the library file (defaults to ../initramfs.sh)
+#   INITPATH      Override the position of the init file (defaults to ../init)
+#
+# Environment variables used by library:
+#   DRYRUN        If set, don't create the final cpio archive
+#   OUTPUT        Override the cpio archive destination
+#                 If set to '-', the archive is outputed to stdout
+#   QUIET         If set, don't print information messages
+#   VERBOSE       If set, will print more messages
+#   TMPDIR        Defines the temporary directory where the initramfs is built,
+#                 defaults to /tmp/yoshi-initramfs
+#
+set -ue
+
+# Define variables
+root_luks_key='/root/key'
+root_luks_header='/root/key.luks'
+keymap_source='/usr/share/keymaps/i386/azerty/fr.map.gz'
+keymap_destination='/root/keymap.bmap'
+
+# Define init variables
+init_variables='init_keymap init_luks_uuid init_luks_key init_luks_header init_root_uuid init_root_flags init_usr_uuid init_usr_flags init_init'
+init_keymap="${keymap_destination}"
+init_luks_uuid='UUID=27537383-e414-4007-9868-7398a305aaec'
+init_luks_key="${root_luks_key}"
+init_luks_header="${root_luks_header}"
+init_root_uuid='UUID=ed648cf8-48ee-4616-924c-d0edb8434e41'
+init_root_flags='ro,subvol=root'
+init_usr_uuid='UUID=c536dbf1-11dc-4705-92c3-ed056225d58b'
+init_usr_flags='ro,subvol=usr'
+init_init='/sbin/openrc-init'
+
+# Find the main library (default name is yoshi-initramfs.sh)
+libpath="${LIBPATH:-../initramfs.sh}"
+[ -f "${libpath}" ] && . "${libpath}" && info "Library \"${libpath}\" loaded" \
+	|| { echo "Error: Library \"${libpath}\" not found" 1>&2; exit 1; }
+
+# Check for permissions 
+[ "$(id -u)" -eq 0 ] || die "root privileges required"
+
+# Create base layout
+info 'Creating base layout'
+mklayout
+
+# Install busybox
+info 'Installing busybox'
+copyexec 'busybox'
+busybox_install
+
+# Install cryptsetup
+info 'Installing cryptsetup'
+copyexec 'cryptsetup'
+copylib 'libgcc_s.so.1'
+copyfile "${root_luks_key}"
+copyfile "${root_luks_header}"
+
+# Install LVM
+info 'Installing LVM'
+copyexec 'lvm'
+
+# Install BTRFS
+info 'Installing BTRFS'
+copyexec 'btrfs'
+copyexec 'fsck.btrfs'
+
+# Install keymap
+info 'Installing keymap'
+gzip -cd "${keymap_source}" | loadkeys --bkeymap | copyfile - "${keymap_destination}"
+copyexec 'setleds'
+
+# Install init and replace variables by their values
+info 'Installing /init'
+initpath="${INITPATH:-../init}"
+[ -f "${initpath}" ]
+sed_cmd='sed'
+for var in ${init_variables}; do
+	sed_cmd="${sed_cmd} -e \"s/\\\${${var}}/$(eval printf '"%s"' "\"\${${var}}"\" | sed 's/\//\\\//g')/g\""
+done
+sed_cmd="${sed_cmd} \"${initpath}\""
+eval "${sed_cmd}" | copyfile - "/init"
+setperms 0755 "/init"
+
+# Install initramfs
+info 'Building and installing initramfs'
+initramfs_install
+
+info "Finished"
+exit 0
+

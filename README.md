@@ -68,10 +68,11 @@ Its syntaxe is `./make [make|install|remove]`.
 By default, those 3 functions will call respectively `build_default`, `install_default`, `remove_default`.
 This behavior can be overriden by redefining the functions in a `makerc` file placed in the package's directory.
 Before calling any function, `makerc` is sourced by ./make.
+The script will also source the `env.conf` file from the repository's root directory,
+and export all the variables defined in it.
 
 Default functions available:
- * `build_default` will source an `env.conf` file from the repository's root directory,
- then if a Makefile is found, it will call `make`, otherwist it will exit successfully.
+ * `build_default` if a Makefile is found, it will call `make`, otherwist it will exit successfully.
  * `install_default` will call `make install` if a Makefile exists, otherwise it will exit successfully.
    If the variable "ELEVATED_INSTALL" is defined, it will run `make install` as root.
  * `remove_default` will call `make uninstall` if a Makefile exists, otherwise it will exit successfully.
@@ -85,11 +86,9 @@ Default functions available:
 Here, we define `$ROOT` as the root folder of the repository,
 and `$PKG` as the folder containing the package.
 ./make will use multiple files if they exists:
- * `$ROOT/env.conf` is sourced by `build_default` to get some environment variables.
-   It will then export those variables before trying to call make.
-   The variables it exports are:
-   `CC`, `CXX`, `CTARGET`, `CFLAGS`, `CXXFLAGS`, `CPPFLAGS`, `FCFLAGS`, `FFLAGS`, `LDFLAGS`.
-   The function will also use the `MAKEOPTS` (but not export it) if defined,
+ * `$ROOT/env.conf` is sourced by the script to get some environment variables.
+   It will then export all variables defined in threre.
+   The script will also use the `MAKEOPTS` and `DESTDIR` if defined,
    this variable will be used as an argument list to append to the `make` command (e.g. "-j4 -l4").
  * `$PKG/makerc` is sourced by ./make before calling the `build`, `install`, or `remove` functions.
    This is where a package should redefine those functions.
